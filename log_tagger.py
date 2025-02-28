@@ -18,20 +18,32 @@ def read_lookup_table(lookup_file):
             lookup_dict[key] = row['tag']
     return lookup_dict
 
+def read_protocol_numbers(protocol_file):
+    """
+    Load the protocol numbers file
+    """
+    protocol_dict = {}
+    with open(protocol_file, "r") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            protocol_dict[int(row['Decimal'])] = row['Keyword'].lower()
+    return protocol_dict
 
-def count_write_flow_logs(flow_log_file, lookup_dict, tagged_logs_file, port_protocol_count_file):
+def count_write_flow_logs(flow_log_file, lookup_dict, protocol_map, tagged_logs_file, port_protocol_count_file):
     """
     Parse the flow logs and count the tags and port protocol counts
     """
     tagged_logs = {}
     port_protocol_counts = defaultdict(int)
-    protocol_map={6:"tcp",17:"udp",1:"icmp"}
+    # protocol_map={6:"tcp",17:"udp",1:"icmp"}
     with open(flow_log_file, "r") as file:
         for line in file:
             fields = line.strip().split()
             if len(fields) < 10:
                 continue  # Skip invalid lines
             dstport = int(fields[6])
+            if int(fields[7]) not in protocol_map:
+                continue
             protocol = protocol_map[int(fields[7])]
             tag = lookup_dict.get((dstport, protocol), "Unknown")
             tagged_logs[tag]=tagged_logs.get(tag,0)+1
@@ -58,6 +70,7 @@ def parse_logs_write_results(flow_log_file, lookup_file, tagged_logs_file, count
     Parse logs and write results
     """
     lookup_dict = read_lookup_table(lookup_file)
-    count_write_flow_logs(flow_log_file, lookup_dict, tagged_logs_file, count_file)
+    protocol_map=read_protocol_numbers("protocol-numbers.csv")
+    count_write_flow_logs(flow_log_file, lookup_dict, protocol_map, tagged_logs_file, count_file)
 
 parse_logs_write_results("flow_logs.txt", "tag_list.csv", "tag_counts.csv", "port_protocol_counts.csv")

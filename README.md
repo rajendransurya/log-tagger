@@ -5,12 +5,12 @@ The output of the program will be a csv file with the tag counts and port protoc
 ## Input:
 * The input file is a txt file with the flow logs from AWS VPC. in the same directory. The program expects it to be with the name "flow_logs.txt"
 * The tag list is a csv file with the tag list. The program expects it to be with the name "tag_list.csv"
+* The protocol numbers is a csv file with the protocol numbers. The program expects it to be with the name "protocol_numbers.csv". It can be downloaded from https://www.iana.org/assignments/protocol-numbers/protocol-numbers-1.csv
 
 ## Assumptions:
 * The program only works for default format VPC flow logs version 2.
 * The flow logs are in the format of txt file unlike the log.gz format.
 * The program knows the name of the file and it is hardcoded in the program.
-* For the purpose of this assignment I am having the protocol numbers in a small dictionary. In real world scenario, this dictionary can be replaced with a csv file.
 * If there exists a port protocol combination that isn't in the tag list then it will be tagged as "Unknown"
 * For the port protocol counts I am considering the dstport as the port number. We can also use the srcport for the same purpose.
 
